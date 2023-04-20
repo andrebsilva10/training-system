@@ -61,7 +61,7 @@ public class EmployeeDao {
 				Session session = HibernateUtil.getSessionFactory().openSession();
 				// start the transaction
 				transaction = session.beginTransaction();
-				// get the studendt object
+				// get the object
 				emp = (Employee) session.get(className, id);
 				// commit the transaction
 				transaction.commit();
@@ -103,7 +103,7 @@ public class EmployeeDao {
 
 		public void delete(Employee emp) {
 
-			Class<? extends Employee> classe = emp.getClass();
+			Class classe = emp.getClass();
 			String className = classe.getSimpleName().toString();
 
 			Transaction transaction = null;

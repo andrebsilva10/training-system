@@ -6,29 +6,38 @@ import javax.swing.JFrame;
 
 public class FrameBase extends JFrame implements VisualComponent{
 
-	PanelBase base = new PanelBase();
+	PanelBase base; 
 	
-	public FrameBase () {
+	
+	
+	public FrameBase() {
 		setLayouts();
 		setComponents();
 		setEvents();
+	    validate();
 	}
+	
 	
 	public void setLayouts() {
 		setSize(800, 600);
 		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//encerra o processo ao clicar no X
-		setLayout(new BorderLayout());//forma como os componentes são distribuídos na tela (esquerda, direta, centro, etc)
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+		
 	}
 
 	public void setComponents() {
+	    base = new PanelBase();
 		add(base, BorderLayout.CENTER);
+		
 		
 	}
 
 	public void setEvents() {
+		// TODO Auto-generated method stub
 		
 	}
 
+     
 	
 }

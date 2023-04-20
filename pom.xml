@@ -9,7 +9,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>6.2.0.CR2</version>
+			<version>5.3.7.Final</version>
 		</dependency>
 		<!-- Mysql Connector -->
 		<dependency>
