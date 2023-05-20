@@ -24,7 +24,7 @@ public class HibernateUtil {
 				// equivalente ao hibernate.cfg.xml
 				Properties settings = new Properties();
 				settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-				settings.put(Environment.URL, "jdbc:mysql://localhost:3306/loo");
+				settings.put(Environment.URL, "jdbc:mysql://172.19.185.165:3306/training_system");
 				settings.put(Environment.USER, "developer");
 				settings.put(Environment.PASS, "developer");
 				settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");

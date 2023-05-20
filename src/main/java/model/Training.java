@@ -1,6 +1,7 @@
 package model;
 
 import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,8 +9,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import dao.TrainingDao;
+
 @Entity
-public class Training {
+public class Training implements Reportable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,6 +33,10 @@ public class Training {
 	public Training() {
 		this.status = Status.PENDING;
 	}
+	
+	public long getId() {
+        return id;
+    }
 
 	public String getName() {
 		return name;
@@ -55,14 +62,33 @@ public class Training {
 	public enum Status {
 		PENDING, IN_PROGRESS, COMPLETED
 	}
-
-	public String generateReport() {
-		StringBuilder report = new StringBuilder();
-		report.append("Training Report:\n");
-		report.append("ID: ").append(id).append("\n");
-		report.append("Name: ").append(name).append("\n");
-
-		return report.toString();
+	
+	public List<Employee> getEmployees() {
+	    return employees;
 	}
+
+
+	@Override
+    public String generateReport() {
+        StringBuilder report = new StringBuilder();
+        report.append("Relatório de Treinamentos:\n");
+        report.append("=======================\n");
+
+        TrainingDao dao = new TrainingDao();
+        List<Training> trainings = dao.listAll();
+        for (Training training : trainings) {
+            report.append("ID: ").append(training.getId()).append("\n");
+            report.append("Nome: ").append(training.getName()).append("\n");
+            report.append("Status: ").append(training.getStatus()).append("\n");
+            report.append("Employees:\n");
+            List<Employee> employees = training.getEmployees();
+            for (Employee employee : employees) {
+                report.append("- ").append(employee.getName()).append("\n");
+            }
+            report.append("=======================\n");
+        }
+
+        return report.toString();
+    }
 
 }

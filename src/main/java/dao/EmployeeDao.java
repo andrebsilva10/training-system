@@ -73,32 +73,29 @@ public class EmployeeDao {
 	}
 
 	// Lista todos os registros
-	public List<Employee> listAll(Employee emp) {
+	public List<Employee> listAll() {
+        String className = Employee.class.getSimpleName();
 
-		// Class classe = emp.getClass();
-		String className = Employee.class.getSimpleName().toString();
+        Transaction transaction = null;
+        List<Employee> objects = null;
+        try {
+            Session session = HibernateUtil.getSessionFactory().openSession();
+            // start the transaction
+            transaction = session.beginTransaction();
 
-		Transaction transaction = null;
-		List<Employee> objects = null;
-		try {
-			Session session = HibernateUtil.getSessionFactory().openSession();
-			// start the transaction
-			transaction = session.beginTransaction();
+            // get the employees
+            objects = session.createQuery("from " + className, Employee.class).list();
 
-			// get the employees
-			objects = session.createQuery("from " + className).list();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+                System.out.println("ListALL - abriu transaction mas falhou");
+            }
+        }
 
-			transaction.commit();
-
-		} catch (Exception e) {
-			if (transaction != null) {
-				transaction.rollback();
-				System.out.println("ListALL - abriu transaction mas falhou");
-			}
-		}
-
-		return objects;
-	}
+        return objects;
+    }
 
 	public void delete(Employee emp) {
 

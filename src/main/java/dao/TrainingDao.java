@@ -8,7 +8,7 @@ import org.hibernate.Transaction;
 import model.Training;
 import util.HibernateUtil;
 
-public class TrainingDAO {
+public class TrainingDao {
 
     public void save(Training training) {
 
@@ -76,8 +76,7 @@ public class TrainingDAO {
 
     // Lista todos os registros
     public List<Training> listAll() {
-
-        String className = Training.class.getSimpleName().toString();
+        String className = Training.class.getSimpleName();
 
         Transaction transaction = null;
         List<Training> objects = null;
@@ -85,11 +84,11 @@ public class TrainingDAO {
             Session session = HibernateUtil.getSessionFactory().openSession();
             // start the transaction
             transaction = session.beginTransaction();
+
             // get the trainings
-            objects = session.createQuery("from " + className).list();
+            objects = session.createQuery("from " + className, Training.class).list();
 
             transaction.commit();
-
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();

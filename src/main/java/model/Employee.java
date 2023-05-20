@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
+import dao.EmployeeDao;
+
 @Entity
 public class Employee implements Reportable {
 
@@ -77,17 +79,26 @@ public class Employee implements Reportable {
 		this.trainings.set(index, training);
 	}
 
-	public String generateReport() {
-		StringBuilder report = new StringBuilder();
-		report.append("Employee Report:\n");
-		report.append("ID: ").append(id).append("\n");
-		report.append("Name: ").append(name).append("\n");
-		report.append("Trainings:\n");
-		for (Training training : trainings) {
-			report.append("- ").append(training.getName()).append("\n");
-		}
-		return report.toString();
+	@Override
+    public String generateReport() {
+        StringBuilder report = new StringBuilder();
+        report.append("Relatório de Employees:\n");
+        report.append("=======================\n");
+        
+        EmployeeDao dao = new EmployeeDao();
+        List<Employee> employees = dao.listAll();
+        for (Employee employee : employees) {
+            report.append("ID: ").append(employee.getId()).append("\n");
+            report.append("Nome: ").append(employee.getName()).append("\n");
+            report.append("Treinamentos:\n");
+            List<Training> trainings = employee.getTrainings();
+            for (Training training : trainings) {
+                report.append("- ").append(training.getName()).append("\n");
+            }
+            report.append("=======================\n");
+        }
 
-	}
+        return report.toString();
+    }
 
 }
