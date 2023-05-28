@@ -1,42 +1,60 @@
 package view;
 
-import java.awt.CardLayout;
-import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
-public class PanelBase extends JPanel implements VisualComponent{
+import control.RegisterManager;
 
-	
-	private Page1 page1;
-	private Page2 page2;
+public class PanelBase extends JPanel implements VisualComponent {
+	private JButton btnEmployeeRegistration, btnTrainingRegistration, btnEmployeeReport, btnTrainingReport;
+	private RegisterManager registerM;
+
+	public PanelBase(FrameBase frame) {
+		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 250));
+		setPreferredSize(new Dimension(800, 600));
 		
-	public PanelBase() {
-		setLayouts();
+		registerM = new RegisterManager();
+
+		initializeComponents(frame);
 		setComponents();
-		setEvents();
+		setEvents(frame);
 	}
-	
-	
-	public void setLayouts() {
-		setSize(800, 600);
-		setVisible(true);
-		setBackground(Color.BLUE);
-		setLayout(new CardLayout());
-		
+
+	private void initializeComponents(FrameBase frame) {
+		btnEmployeeRegistration = new JButton("Cadastro de Empregados");
+		btnTrainingRegistration = new JButton("Cadastro de Treinamentos");
+		btnEmployeeReport = new JButton("Relatório de Empregados");
+		btnTrainingReport = new JButton("Relatório de Treinamentos");
+
+		btnEmployeeRegistration.addActionListener(e -> frame.showPanel(new PanelEmployeeRegistration(frame)));
+		btnTrainingRegistration.addActionListener(e -> frame.showPanel(new PanelTrainingRegistration(frame)));
+		btnEmployeeReport.addActionListener(e -> registerM.generateEmployeeReport(frame));
+		btnTrainingReport.addActionListener(e -> registerM.generateTrainingReport(frame));
+
 	}
 
 	public void setComponents() {
-		page1 = new Page1();
-		page2 = new Page2();
-		add(page1, "1");
-		add(page2, "2");
-		
+		add(btnEmployeeRegistration);
+		add(btnTrainingRegistration);
+		add(btnEmployeeReport);
+		add(btnTrainingReport);
 	}
 
-	public void setEvents() {
+	@Override
+	public void setLayouts() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
+	public void setEvents(FrameBase frame) {
+		ActionListener panelBaseListener = e -> frame.showPanel(this);
+		btnEmployeeRegistration.addActionListener(panelBaseListener);
+		btnTrainingRegistration.addActionListener(panelBaseListener);
+		btnEmployeeReport.addActionListener(panelBaseListener);
+		btnTrainingReport.addActionListener(panelBaseListener);
+	}
 }

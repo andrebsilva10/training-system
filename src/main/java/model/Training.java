@@ -9,10 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-import dao.TrainingDao;
-
 @Entity
-public class Training implements Reportable{
+public class Training implements ReportGenerator<Training> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +23,7 @@ public class Training implements Reportable{
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Employee> employees;
 
-	public Training(String name) {
+	public Training(String name, Status status) {
 		this.name = name;
 		this.status = Status.PENDING;
 	}
@@ -33,10 +31,10 @@ public class Training implements Reportable{
 	public Training() {
 		this.status = Status.PENDING;
 	}
-	
+
 	public long getId() {
-        return id;
-    }
+		return id;
+	}
 
 	public String getName() {
 		return name;
@@ -62,33 +60,20 @@ public class Training implements Reportable{
 	public enum Status {
 		PENDING, IN_PROGRESS, COMPLETED
 	}
-	
+
 	public List<Employee> getEmployees() {
-	    return employees;
+		return employees;
 	}
 
-
 	@Override
-    public String generateReport() {
+    public String generateReport(List<Training> trainings) {
         StringBuilder report = new StringBuilder();
-        report.append("Relatório de Treinamentos:\n");
-        report.append("=======================\n");
-
-        TrainingDao dao = new TrainingDao();
-        List<Training> trainings = dao.listAll();
         for (Training training : trainings) {
             report.append("ID: ").append(training.getId()).append("\n");
             report.append("Nome: ").append(training.getName()).append("\n");
             report.append("Status: ").append(training.getStatus()).append("\n");
-            report.append("Employees:\n");
-            List<Employee> employees = training.getEmployees();
-            for (Employee employee : employees) {
-                report.append("- ").append(employee.getName()).append("\n");
-            }
-            report.append("=======================\n");
+            report.append("====================================================\n");
         }
-
         return report.toString();
     }
-
 }

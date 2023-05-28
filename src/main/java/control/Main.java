@@ -1,15 +1,12 @@
 package control;
 
-import dao.EmployeeDao;
-import model.Employee;
+import javax.swing.SwingUtilities;
+
 import view.FrameBase;
 
 public class Main {
 
-	
-	public static void main(String[] args) {
-
-		new FrameBase();
-
-	}
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(FrameBase::new);
+    }
 }

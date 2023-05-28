@@ -1,43 +1,30 @@
 package view;
 
-import java.awt.BorderLayout;
-
+import java.awt.Dimension;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-public class FrameBase extends JFrame implements VisualComponent{
+public class FrameBase extends JFrame {
+    private JPanel currentPanel;
 
-	PanelBase base; 
-	
-	
-	
-	public FrameBase() {
-		setLayouts();
-		setComponents();
-		setEvents();
-	    validate();
-	}
-	
-	
-	public void setLayouts() {
-		setSize(800, 600);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLayout(new BorderLayout());
-		
-	}
+    public FrameBase() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setPreferredSize(new Dimension(800, 600));
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
 
-	public void setComponents() {
-	    base = new PanelBase();
-		add(base, BorderLayout.CENTER);
-		
-		
-	}
+        showPanel(new PanelBase(this));
+    }
 
-	public void setEvents() {
-		// TODO Auto-generated method stub
-		
-	}
+    public void showPanel(JPanel panel) {
+        if (currentPanel != null) {
+            getContentPane().remove(currentPanel);
+        }
 
-     
-	
+        currentPanel = panel;
+        getContentPane().add(currentPanel);
+        revalidate();
+        repaint();
+    }
 }

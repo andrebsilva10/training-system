@@ -78,7 +78,7 @@ public class Page1 extends JPanel implements VisualComponent {
     public void setEvents() {
         btRegister.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Employee employee = registerM.getNewEmployee();
+                Employee employee = registerM.createNewEmployee();
                 employee.setName(jtfName.getText());
                 registerM.saveEmployee(employee);
             }
@@ -87,14 +87,14 @@ public class Page1 extends JPanel implements VisualComponent {
         btEmpReports.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	Employee employee = new Employee();
-                employee.generateReport();
+
             }
         });
 
         btTrainingReports.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	Training training = new Training();
-                training.generateReport();
+
             }
         });
     }
