@@ -1,7 +1,5 @@
 package control;
 
-import javax.swing.SwingUtilities;
-
 import dao.GenericDao;
 import exception.EmployeeRegistrationException;
 import exception.TrainingRegistrationException;
@@ -11,8 +9,13 @@ import view.FrameBase;
 import view.PanelEmployeeReport;
 import view.PanelTrainingReport;
 
-public class RegisterManager {
+import java.util.List;
+import java.util.ArrayList;
 
+
+import javax.swing.SwingUtilities;
+
+public class RegisterManager {
     private Thread reportThread;
 
     private GenericDao<Employee> employeeDao;
@@ -34,7 +37,66 @@ public class RegisterManager {
             throw new EmployeeRegistrationException("Erro ao salvar o funcionário: " + e.getMessage());
         }
     }
+    
+    public Employee getEmployeeByName(String employeeName) {
+        List<Employee> employees = employeeDao.listAll(new Employee());
 
+        for (Employee employee : employees) {
+            if (employee.getName().equals(employeeName)) {
+                return employee;
+            }
+        }
+
+        return null; // Empregado não encontrado
+    }
+
+    public void associateTrainingToEmployee(Training training, Employee employee) {
+        employee.addTraining(training);
+        training.getEmployees().add(employee); 
+        employeeDao.update(employee);
+        trainingDao.update(training);
+    }
+    
+    
+
+    public List<String> getAllEmployeesNames() {
+        List<Employee> employees = employeeDao.listAll(new Employee());
+        List<String> employeeNames = new ArrayList<>();
+
+        for (Employee employee : employees) {
+            employeeNames.add(employee.getName());
+        }
+
+        return employeeNames;
+    }
+
+
+    public List<String> getAllTrainingsNames() {
+    	List<Training> trainings = trainingDao.listAll(new Training());
+    	List<String> trainingNames = new ArrayList<>();
+    	
+    	for(Training training : trainings) {
+    		trainingNames.add(training.getName());
+    	}
+    	return trainingNames;
+    }
+    
+    public Training getTrainingByName(String trainingName) {
+        List<Training> trainings = trainingDao.listAll(new Training());
+
+        for (Training training : trainings) {
+            if (training.getName().equals(trainingName)) {
+                return training;
+            }
+        }
+
+        return null; // Treinamento não encontrado
+    }
+
+    public void updateTrainingStatus(Training training, Training.Status status) {
+        training.setStatus(status);
+        trainingDao.update(training);
+    }
 
     public void generateEmployeeReport(FrameBase frame) {
         if (isReportThreadRunning()) {

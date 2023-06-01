@@ -15,17 +15,19 @@ import model.Employee;
 public class PanelEmployeeRegistration extends JPanel implements VisualComponent {
 	private JLabel lblName;
 	private JTextField txtName;
-	private JButton btnRegister;
-	private JButton btnBack;
+	private JButton btnRegister, btnBack;
 	private RegisterManager registerM;
 
+
 	public PanelEmployeeRegistration(FrameBase frame) {
+		registerM = new RegisterManager();
 		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 250));
 		setPreferredSize(new Dimension(800, 600));
 
 		initializeComponents();
 		setComponents();
 		setEvents(frame);
+		
 	}
 
 	private void initializeComponents() {
@@ -41,7 +43,7 @@ public class PanelEmployeeRegistration extends JPanel implements VisualComponent
 		add(btnRegister);
 		add(btnBack);
 
-		registerM = new RegisterManager();
+		
 	}
 
 	private void setEvents(FrameBase frame) {

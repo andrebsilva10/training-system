@@ -1,6 +1,7 @@
 package model;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -8,7 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 
 @Entity
 public class Employee implements ReportGenerator<Employee> {
@@ -19,18 +21,20 @@ public class Employee implements ReportGenerator<Employee> {
 
 	private String name;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "training_id")
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "Training_Employee",
+		joinColumns = @JoinColumn(name = "employee_id"),
+		inverseJoinColumns = @JoinColumn(name = "training_id"))
 	private List<Training> trainings;
 
 	public Employee() {
-
+	    trainings = new ArrayList<>();
 	}
-
-	public Employee(String name, List<Training> trainings) {
-		this.name = name;
-		this.trainings = trainings;
-	}
+	
+    public Employee(String name, List<Training> trainings) {
+        this.name = name;
+        this.trainings = trainings;
+    }
 
 	public Employee(String name, List<Training> trainings, Training training) {
 		this.name = name;
@@ -67,14 +71,11 @@ public class Employee implements ReportGenerator<Employee> {
 
 	}
 
-	public void addTraining(Training training, int index) {
-		if (index < 0) {
-			throw new IllegalArgumentException("O índice deve ser maior ou igual a zero.");
-		}
-		if (index > this.trainings.size()) {
-			throw new IllegalArgumentException("O índice deve ser menor ou igual ao tamanho da lista de treinamentos.");
-		}
-		this.trainings.set(index, training);
+	public void addTraining(Training training) {
+	    if (!trainings.contains(training)) {
+	        trainings.add(training);
+	        training.getEmployees().add(this);
+	    }
 	}
 
 	@Override

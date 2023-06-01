@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import control.RegisterManager;
 
 public class PanelBase extends JPanel implements VisualComponent {
-	private JButton btnEmployeeRegistration, btnTrainingRegistration, btnEmployeeReport, btnTrainingReport;
+	private JButton btnEmployeeRegistration, btnTrainingRegistration, btnEmployeeReport, btnTrainingReport, btnEmployeeTraining;
 	private RegisterManager registerM;
 
 	public PanelBase(FrameBase frame) {
@@ -29,11 +29,14 @@ public class PanelBase extends JPanel implements VisualComponent {
 		btnTrainingRegistration = new JButton("Cadastro de Treinamentos");
 		btnEmployeeReport = new JButton("Relatório de Empregados");
 		btnTrainingReport = new JButton("Relatório de Treinamentos");
+		btnEmployeeTraining = new JButton("Vincular Treinamentos a Funcionários");
 
 		btnEmployeeRegistration.addActionListener(e -> frame.showPanel(new PanelEmployeeRegistration(frame)));
 		btnTrainingRegistration.addActionListener(e -> frame.showPanel(new PanelTrainingRegistration(frame)));
 		btnEmployeeReport.addActionListener(e -> registerM.generateEmployeeReport(frame));
 		btnTrainingReport.addActionListener(e -> registerM.generateTrainingReport(frame));
+		btnEmployeeTraining.addActionListener(e -> frame.showPanel(new PanelEmployeeTraining(frame, registerM)));
+
 
 	}
 
@@ -42,6 +45,7 @@ public class PanelBase extends JPanel implements VisualComponent {
 		add(btnTrainingRegistration);
 		add(btnEmployeeReport);
 		add(btnTrainingReport);
+		add(btnEmployeeTraining);
 	}
 
 	@Override

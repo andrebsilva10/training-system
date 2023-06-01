@@ -2,16 +2,10 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-
-import model.Training;
 
 public class PanelTrainingReport extends JPanel implements VisualComponent {
     private JTextArea txtReport;
