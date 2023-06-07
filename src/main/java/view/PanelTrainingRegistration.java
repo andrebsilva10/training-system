@@ -7,17 +7,18 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JComboBox;
+
 
 import control.RegisterManager;
-import exception.EmployeeRegistrationException;
 import exception.TrainingRegistrationException;
-import model.Employee;
 import model.Training;
 
 public class PanelTrainingRegistration extends JPanel implements VisualComponent {
     private JLabel lblTitle;
     private JTextField txtName;
     private JButton btnRegister, btnBack;
+    private JComboBox<Training.Status> statusComboBox;
     private RegisterManager registerM;
 
     public PanelTrainingRegistration(FrameBase frame) {
@@ -34,13 +35,17 @@ public class PanelTrainingRegistration extends JPanel implements VisualComponent
         txtName = new JTextField(20);
         btnRegister = new JButton("Cadastrar");
         btnBack = new JButton("Voltar");
+        statusComboBox = new JComboBox<>(Training.Status.values());
+
     }
 
     public void setComponents() {
         add(lblTitle);
         add(txtName);
+        add(statusComboBox);
         add(btnRegister);
         add(btnBack);
+
         
         registerM = new RegisterManager();
     }
@@ -48,7 +53,9 @@ public class PanelTrainingRegistration extends JPanel implements VisualComponent
     private void setEvents(FrameBase frame) {
         btnBack.addActionListener(e -> frame.showPanel(new PanelBase(frame)));
         btnRegister.addActionListener(e -> {
+        	Training.Status status = (Training.Status) statusComboBox.getSelectedItem();
             String name = txtName.getText().trim();
+            
             try {
             	if (name.isEmpty()) {
             		throw new TrainingRegistrationException("O campo 'Nome' não pode estar vazio");
@@ -56,6 +63,7 @@ public class PanelTrainingRegistration extends JPanel implements VisualComponent
 
             	Training training= registerM.createNewTraining();
             	training.setName(name);
+            	training.setStatus(status);
                 registerM.saveTraining(training);
                 txtName.setText("");
                 } catch (TrainingRegistrationException exception) {
@@ -66,10 +74,7 @@ public class PanelTrainingRegistration extends JPanel implements VisualComponent
 
 
 	@Override
-	public void setLayouts() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void setLayouts() {}
 
 
 }

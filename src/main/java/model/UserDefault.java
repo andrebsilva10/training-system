@@ -1,47 +1,17 @@
 package model;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 
 @Entity
 public class UserDefault extends User {
 
-	public UserDefault() {
-		super();
-	}
+    public UserDefault() {
+        super();
+    }
 
-	public UserDefault(String username, String password) {
-		super(username, password);
-	}
-
-	public void addEmployee(List<Employee> employees) {
-
-	}
-
-	public void removeEmployee(List<Employee> employees) {
-
-	}
-
-	public void editEmployee(List<Employee> employees) {
-
-	}
-
-	public void viewEmployee(List<Employee> employees) {
-
-	}
-
-	public void addTraining(List<Training> trainings) {
-
-	}
-
-	public void removeTraining(List<Training> trainings) {
-
-	}
-
-	public void viewTraining(List<Training> trainings) {
-
-	}
+    public UserDefault(String username, String password) {
+        super(username, password);
+    }
 
 	@Override
 	public void setPassword(String password) {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,37 +18,34 @@ public class Employee implements ReportGenerator<Employee> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private long idEmployee;
 
 	private String name;
 
-	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "Training_Employee",
-		joinColumns = @JoinColumn(name = "employee_id"),
-		inverseJoinColumns = @JoinColumn(name = "training_id"))
-	private List<Training> trainings;
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "Training_Employee", joinColumns = @JoinColumn(name = "id_employee"), inverseJoinColumns = @JoinColumn(name = "id_training"))
+	public List<Training> trainings = new ArrayList<>();
 
 	public Employee() {
-	    trainings = new ArrayList<>();
 	}
-	
-    public Employee(String name, List<Training> trainings) {
-        this.name = name;
-        this.trainings = trainings;
-    }
 
-	public Employee(String name, List<Training> trainings, Training training) {
-		this.name = name;
-		this.trainings = trainings;
-		this.trainings.add(training);
-	}
+//    public Employee(String name, List<Training> trainings) {
+//        this.name = name;
+//        this.trainings = trainings;
+//    }
+//
+//	public Employee(String name, List<Training> trainings, Training training) {
+//		this.name = name;
+//		this.trainings = trainings;
+//		this.trainings.add(training);
+//	}
 
 	public long getId() {
-		return id;
+		return idEmployee;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setId(long idEmployee) {
+		this.idEmployee = idEmployee;
 	}
 
 	public String getName() {
@@ -68,25 +66,21 @@ public class Employee implements ReportGenerator<Employee> {
 		if (trainings != null && !trainings.isEmpty()) {
 			this.trainings = trainings;
 		}
-
 	}
 
 	public void addTraining(Training training) {
-	    if (!trainings.contains(training)) {
-	        trainings.add(training);
-	        training.getEmployees().add(this);
-	    }
+		trainings.add(training);
 	}
 
 	@Override
 	public String generateReport(List<Employee> employees) {
-        StringBuilder report = new StringBuilder();
-        for (Employee employee : employees) {
-            report.append("ID: ").append(employee.getId()).append("\n");
-            report.append("Nome: ").append(employee.getName()).append("\n");
-            report.append("=======================\n");
-        }
-        return report.toString();
-    }
+		StringBuilder report = new StringBuilder();
+		for (Employee employee : employees) {
+			report.append("ID: ").append(employee.getId()).append("\n");
+			report.append("Nome: ").append(employee.getName()).append("\n");
+			report.append("=======================\n");
+		}
+		return report.toString();
+	}
 
 }

@@ -14,7 +14,7 @@ public class FrameBase extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-        showPanel(new PanelBase(this));
+        showPanel(new PanelLogin(this));
     }
 
     public void showPanel(JPanel panel) {

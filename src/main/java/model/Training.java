@@ -13,7 +13,7 @@ public class Training implements ReportGenerator<Training> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private long idTraining;
 
 	private String name;
 
@@ -32,7 +32,7 @@ public class Training implements ReportGenerator<Training> {
 	}
 
 	public long getId() {
-		return id;
+		return idTraining;
 	}
 
 	public String getName() {
@@ -50,10 +50,7 @@ public class Training implements ReportGenerator<Training> {
 	}
 
 	public void setStatus(Status status) {
-		if (status != null
-				&& (status == Status.PENDING || status == Status.IN_PROGRESS || status == Status.COMPLETED)) {
 			this.status = status;
-		}
 	}
 
 	public enum Status {

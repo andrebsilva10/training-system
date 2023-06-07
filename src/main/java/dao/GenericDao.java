@@ -4,124 +4,173 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
+import model.User;
 import util.HibernateUtil;
 
-
 public class GenericDao<T> {
-		// salvando o objeto
-			
-		public void save(T obj) {
 
-				Transaction transaction = null;
-				try {
-					Session session = HibernateUtil.getSessionFactory().openSession();
-					// start the transaction
-					transaction = session.beginTransaction();
+    public Session getSession() {
+        return HibernateUtil.getSessionFactory().getCurrentSession();
+    }
 
-					session.save(obj);
-					// commit the transaction
-					transaction.commit();
+    // salvando o objeto
+    public void save(T obj) {
+        Transaction transaction = null;
+        Session session = getSession();
+        
+        try {
+            if (!session.isOpen()) {
+                session = HibernateUtil.getSessionFactory().openSession();
+            }
+            
+            transaction = session.beginTransaction();
+            session.save(obj);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session.isOpen()) {
+                session.close();
+            }
+        }
+    }
 
-				} catch (Exception e) {
-					if (transaction != null) {
-						transaction.rollback();
-						System.out.println("abriu transaction mas falhou");
-					}
-				}
-			}
-		//atualizando o objeto (precisa ler o id do banco)	
-		public void update(T obj) {
-		    Transaction transaction = null;
-		    try {
-		        Session session = HibernateUtil.getSessionFactory().openSession();
-		        // start the transaction
-		        transaction = session.beginTransaction();
+    public void update(T obj) {
+        Transaction transaction = null;
+        Session session = getSession();
+        
+        try {
+            if (!session.isOpen()) {
+                session = HibernateUtil.getSessionFactory().openSession();
+            }
+            
+            transaction = session.beginTransaction();
+            session.update(obj);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session.isOpen()) {
+                session.close();
+            }
+        }
+    }
+    
+    public T getObjectById(Class<T> classe, long id) {
+        String className = classe.getSimpleName();
 
-		        session.update(obj);
-		        // commit the transaction
-		        transaction.commit();
-		    } catch (Exception e) {
-		        if (transaction != null) {
-		            transaction.rollback();
-		            System.out.println("Update: abriu transaction mas falhou");
-		        }
-		    }
-		}
+        Transaction transaction = null;
+        T retorno = null;
+        Session session = getSession();
 
-		public T getObjectById(T obj, long id) {
-			Class classe = obj.getClass();	
-			String className = classe.getSimpleName().toString();	
-			
-		    Transaction transaction = null;
-		    T retorno = null;
-		try {
-			Session session = HibernateUtil.getSessionFactory().openSession();
-			//start the transaction
-			transaction = session.beginTransaction();
+        try {
+            if (!session.isOpen()) {
+                session = HibernateUtil.getSessionFactory().openSession();
+            }
 
-			retorno = (T)session.get(classe, id);
-			//commit the transaction
-			transaction.commit();} 
-		catch (Exception e) {
-			if(transaction != null) {
-				transaction.rollback();
-			    System.out.println("abriu transaction mas falhou");
-			}
-		}
-		return retorno;
-		}
+            transaction = session.beginTransaction();
+            retorno = session.get(classe, id);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+                System.out.println("getObjectById - abriu transaction mas falhou");
+                e.printStackTrace();
+            }
+        } finally {
+            if (session.isOpen()) {
+                session.close();
+            }
+        }
 
-		// Lista todos os registros
-		public List<T> listAll(T obj) {
+        return retorno;
+    }
+    
+    public User getUserByUsernameAndPassword(String username, String password) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
 
-			Class classe = obj.getClass();
-			String className = classe.getSimpleName().toString();
+        Query<User> query = session.createQuery("FROM User WHERE username = :username AND password = :password");
+        query.setParameter("username", username);
+        query.setParameter("password", password);
 
-			Transaction transaction = null;
-			List<T> objects = null;
-			try {
-				Session session = HibernateUtil.getSessionFactory().openSession();
-				// start the transaction
-				transaction = session.beginTransaction();
+        User user = query.uniqueResult();
 
-				objects = session.createQuery("from " + className).list();
-				
-				transaction.commit();
+        transaction.commit();
+        session.close();
 
-			} catch (Exception e) {
-				if (transaction != null) {
-					transaction.rollback();
-					System.out.println("ListALL - abriu transaction mas falhou");
-				}
-			}
+        return user;
+    }
 
-			return objects;
-		}
-		
-		public void delete(T obj) {
 
-			Class classe = obj.getClass();
-			String className = classe.getSimpleName().toString();
-			
-			Transaction transaction = null;
-			try {
-				Session session = HibernateUtil.getSessionFactory().openSession();
-				// start the transaction
-				transaction = session.beginTransaction();
-				// delete the student object
-				session.delete(obj);
 
-				// commit the transaction
-				transaction.commit();
+    // Lista todos os registros
+    public List<T> listAll(T obj) {
+        Class classe = obj.getClass();
+        String className = classe.getSimpleName().toString();
 
-			} catch (Exception e) {
-				if (transaction != null) {
-					transaction.rollback();
-					System.out.println("Delete - abriu transaction mas falhou");
-				}
-			}
-		}
+        Transaction transaction = null;
+        List<T> objects = null;
+        Session session = getSession();
 
-		
+        try {
+            if (!session.isOpen()) {
+                session = HibernateUtil.getSessionFactory().openSession();
+            }
+
+            transaction = session.beginTransaction();
+
+            objects = session.createQuery("from " + className).list();
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+                System.out.println("ListALL - abriu transaction mas falhou");
+                e.printStackTrace();
+            }
+        } finally {
+            if (session.isOpen()) {
+                session.close();
+            }
+        }
+
+        return objects;
+    }
+
+    public void delete(T obj) {
+        Class classe = obj.getClass();
+        String className = classe.getSimpleName().toString();
+
+        Transaction transaction = null;
+        Session session = getSession();
+
+        try {
+            if (!session.isOpen()) {
+                session = HibernateUtil.getSessionFactory().openSession();
+            }
+
+            transaction = session.beginTransaction();
+            session.delete(obj);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+                System.out.println("Delete - abriu transaction mas falhou");
+                e.printStackTrace();
+            }
+        } finally {
+            if (session.isOpen()) {
+                session.close();
+            }
+        }
+    }
 }
