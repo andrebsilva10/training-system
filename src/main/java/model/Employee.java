@@ -26,19 +26,7 @@ public class Employee implements ReportGenerator<Employee> {
 	@JoinTable(name = "Training_Employee", joinColumns = @JoinColumn(name = "id_employee"), inverseJoinColumns = @JoinColumn(name = "id_training"))
 	public List<Training> trainings = new ArrayList<>();
 
-	public Employee() {
-	}
-
-//    public Employee(String name, List<Training> trainings) {
-//        this.name = name;
-//        this.trainings = trainings;
-//    }
-//
-//	public Employee(String name, List<Training> trainings, Training training) {
-//		this.name = name;
-//		this.trainings = trainings;
-//		this.trainings.add(training);
-//	}
+	public Employee() { }
 
 	public long getId() {
 		return idEmployee;
@@ -71,6 +59,10 @@ public class Employee implements ReportGenerator<Employee> {
 	public void addTraining(Training training) {
 		trainings.add(training);
 	}
+	
+    public boolean hasTraining(Training training) {
+        return trainings.contains(training);
+    }
 
 	@Override
 	public String generateReport(List<Employee> employees) {

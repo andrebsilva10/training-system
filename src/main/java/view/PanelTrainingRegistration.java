@@ -58,7 +58,7 @@ public class PanelTrainingRegistration extends JPanel implements VisualComponent
             
             try {
             	if (name.isEmpty()) {
-            		throw new TrainingRegistrationException("O campo 'Nome' não pode estar vazio");
+            		throw new TrainingRegistrationException("O campo 'Titulo' não pode estar vazio");
             	}
 
             	Training training= registerM.createNewTraining();

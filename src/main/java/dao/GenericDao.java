@@ -110,6 +110,20 @@ public class GenericDao<T> {
         return user;
     }
 
+    public T getUserByUsername(String username, Class<T> entityClass) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            String hql = "FROM " + entityClass.getSimpleName() + " WHERE username = :username";
+            Query<T> query = session.createQuery(hql, entityClass);
+            query.setParameter("username", username);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            session.close();
+        }
+    }
 
 
     // Lista todos os registros

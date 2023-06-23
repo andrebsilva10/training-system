@@ -7,8 +7,7 @@ import exception.TrainingRegistrationException;
 import model.Employee;
 import model.Training;
 import model.User;
-import model.UserDefault;
-import util.HibernateUtil;
+import model.UserAdministrator;
 import view.FrameBase;
 import view.PanelEmployeeReport;
 import view.PanelTrainingReport;
@@ -17,9 +16,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
-
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 public class RegisterManager {
 	private Thread reportThread;
@@ -51,7 +47,20 @@ public class RegisterManager {
 	        return false;
 	    }
 	}
+	
+	public boolean isAdminUser(String username) {
+	    try {
+	        User user = getUserByUsername(username);
+	        return user instanceof UserAdministrator;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
 
+	public User getUserByUsername(String username) {
+	    return userDao.getUserByUsername(username, User.class);
+	}
 
 	public Employee createNewEmployee() {
 		return new Employee();
@@ -65,27 +74,22 @@ public class RegisterManager {
 		}
 	}
 
+	public List<Employee> getEmployees() {
+	    return employeeDao.listAll(new Employee());
+	}
+
 	public Employee getEmployeeByName(String employeeName) {
-		List<Employee> employees = employeeDao.listAll(new Employee());
+	    List<Employee> employees = getEmployees();
 
-		for (Employee employee : employees) {
-			if (employee.getName().equals(employeeName)) {
-				return employee;
-			}
-		}
+	    for (Employee employee : employees) {
+	        if (employee.getName().equals(employeeName)) {
+	            return employee;
+	        }
+	    }
 
-		return null; // Empregado não encontrado
+	    return null; // Funcionário não encontrado
 	}
 
-	public void associateTrainingToEmployee(Employee employee, Training training) {
-		try {
-			employee.addTraining(training);
-			employeeDao.update(employee);
-			trainingDao.update(training);
-		} catch (Exception e) {
-			throw new RuntimeException("Erro ao associar treinamento ao empregado: " + e.getMessage());
-		}
-	}
 
 	public List<String> getAllEmployeesNames() {
 		List<Employee> employees = employeeDao.listAll(new Employee());
@@ -96,6 +100,21 @@ public class RegisterManager {
 		}
 
 		return employeeNames;
+	}
+	
+	public void associateTrainingToEmployee(Employee employee, Training training) {
+		try {
+			if (employee.hasTraining(training)) {
+				throw new RuntimeException("O treinamento já está atribuído ao empregado.");
+			}
+			if (!employee.hasTraining(training)) {
+				employee.addTraining(training);
+				employeeDao.update(employee);
+				trainingDao.update(training);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Erro ao associar treinamento ao empregado: " + e.getMessage());
+		}
 	}
 
 	public List<String> getAllTrainingsNames() {
@@ -119,11 +138,6 @@ public class RegisterManager {
 
 		return null; // Treinamento não encontrado
 	}
-
-//    public void updateTrainingStatus(Training training, Training.Status status) {
-//        training.setStatus(status);
-//        trainingDao.update(training);
-//    }
 
 	public void generateEmployeeReport(FrameBase frame) {
 		if (isReportThreadRunning()) {

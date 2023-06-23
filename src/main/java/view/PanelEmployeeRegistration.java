@@ -66,9 +66,6 @@ public class PanelEmployeeRegistration extends JPanel implements VisualComponent
     }
 
 	@Override
-	public void setLayouts() {
-		// TODO Auto-generated method stub
-
-	}
+	public void setLayouts() {	}
 
 }
