@@ -1,0 +1,2 @@
+module DepartmentTrainingsHelper
+end

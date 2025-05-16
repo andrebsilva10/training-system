@@ -23,6 +23,7 @@ pt-BR:
   breadcrumbs:
     home: Home
     profile: Perfil
+    create_user: Cadastrar usuário
   helpers:
     placeholder:
       email_address: Digite seu e-mail

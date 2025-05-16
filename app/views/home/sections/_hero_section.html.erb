@@ -2,24 +2,23 @@
   <div class="items-center lg:flex">
     <div class="w-full lg:w-1/2">
       <div class="lg:max-w-lg">
-        <h1 class="text-3xl font-semibold text-gray-800 dark:text-white lg:text-4xl">
-          Transforme seu jeito de <br> <span class="text-blue-500">anunciar</span> imóveis
-        </h1>
+        <h1 class="text-3xl font-semibold text-blue-500  lg:text-4xl">Training System</h1>
 
         <p class="mt-3 text-gray-600 dark:text-gray-400">
-          Com nosso sistema exclusivo para corretores de imóveis, você possui o controle total de seus anúncios em uma
-          plataforma personalizada e fácil de usar. Diga adeus às comissões altas e às limitações de portais
-          tradicionais
+          Transforme a gestão de treinamentos em um diferencial competitivo.
+          Com o Training System, sua empresa garante colaboradores sempre atualizados, treinamentos organizados e conformidade automatizada. Mais produtividade, menos riscos — tudo em um só lugar.
         </p>
 
-        <%= link_to "Comece agora mesmo!", new_registration_path,
+        <% button_path = Current.user ? root_path : new_session_path%>
+
+        <%= link_to "Saiba mais", button_path,
                     class: "px-5 py-3 mt-4 inline-block text-sm text-center tracking-wider text-white bg-blue-600 rounded-lg lg:w-auto hover:bg-blue-500 focus:outline-none focus:bg-blue-500" %>
       </div>
     </div>
 
     <div class="mt-6 flex w-full items-center justify-center lg:mt-0 lg:w-1/2">
-      <img src="https://png.pngtree.com/png-clipart/20230927/original/pngtree-smiling-realtor-hold-house-miniature-and-key-png-image_13147400.png"
-           alt="Catalogue-pana.svg"
+      <img src="<%= asset_path('home_hero.png') %>"
+           alt="Hero Image"
            class="h-full w-full lg:max-w-3xl">
     </div>
   </div>

@@ -1,0 +1,2 @@
+module UserTrainingVersionsHelper
+end

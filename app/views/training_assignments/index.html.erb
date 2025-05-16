@@ -1,0 +1,567 @@
+<% provide :page_title, @selected_training ? "Gerenciar Atribuições: #{@selected_training.title}" : "Atribuir Treinamentos" %>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <% if notice.present? %>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+      <p><%= notice %></p>
+    </div>
+  <% end %>
+
+  <% if @selected_training %>
+    <!-- Modo específico para treinamento selecionado -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h1 class="text-xl font-semibold text-gray-800">Gerenciar Atribuições: <%= @selected_training.title %></h1>
+          <%= link_to training_path(@selected_training), class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Voltar para treinamento
+          <% end %>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <!-- Setores atribuídos -->
+        <div class="mb-8">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">Setores atribuídos</h3>
+          
+          <% if @training_departments&.any? %>
+            <div class="bg-white overflow-hidden border border-gray-200 rounded-lg mb-6">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Setor</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obrigatório</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @training_departments.each do |dept_training| %>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <%= link_to dept_training.department.name, assign_trainings_path(department_id: dept_training.department_id), class: "text-indigo-600 hover:text-indigo-900 hover:underline" %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <%= form_with(url: assign_to_department_path, method: :post, id: "form-dept-#{dept_training.id}", class: "contents") do |form| %>
+                          <div class="flex items-center space-x-2">
+                            <%= form.check_box :required, checked: dept_training.mandatory, 
+                                class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded",
+                                id: "required-dept-#{dept_training.id}",
+                                data: { form_id: "form-dept-#{dept_training.id}" },
+                                onclick: "toggleRequired(event)" %>
+                            <label for="required-dept-<%= dept_training.id %>" class="text-sm text-gray-700">
+                              <%= dept_training.mandatory ? "Obrigatório" : "Opcional" %>
+                            </label>
+                            <%= form.hidden_field :department_id, value: dept_training.department_id %>
+                            <%= form.hidden_field :training_id, value: dept_training.training_id %>
+                          </div>
+                        <% end %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <%= button_to remove_department_training_path(dept_training), method: :delete, 
+                            class: "inline-flex items-center text-sm text-red-600 hover:text-red-900", 
+                            data: { turbo_confirm: "Tem certeza que deseja remover este setor do treinamento?" } do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Remover
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="bg-gray-50 rounded-lg p-4 text-gray-700 mb-6">
+              Este treinamento não está atribuído a nenhum setor.
+            </div>
+          <% end %>
+          
+          <!-- Formulário para atribuir a um setor -->
+          <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Atribuir a um Setor</h3>
+            <%= form_with(url: assign_to_department_path, method: :post, class: "space-y-4") do |form| %>
+              <%= form.hidden_field :training_id, value: @selected_training.id %>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <%= form.label :department_id, "Setor", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= form.collection_select :department_id, 
+                      Department.where.not(id: @training_departments&.pluck(:department_id) || []), 
+                      :id, :name, 
+                      { prompt: "Selecione um setor" }, 
+                      class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                </div>
+
+                <div class="flex items-start pt-7">
+                  <%= form.check_box :required, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1" %>
+                  <div class="ml-3">
+                    <%= form.label :required, "Obrigatório", class: "text-sm font-medium text-gray-700" %>
+                    <p class="text-xs text-gray-500">Se marcado, este treinamento será obrigatório para este setor</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="pt-4">
+                <%= form.submit "Atribuir a Setor", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-gray-50" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Usuários atribuídos -->
+        <div class="pt-4 border-t border-gray-200">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">Usuários atribuídos</h3>
+          
+          <% if @training_users&.any? %>
+            <div class="bg-white overflow-hidden border border-gray-200 rounded-lg mb-6">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Setor</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obrigatório</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @training_users.each do |user_training| %>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <%= link_to user_training.user.name, assign_trainings_path(user_id: user_training.user.id), class: "text-indigo-600 hover:text-indigo-900 hover:underline" %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <% if user_training.user.departments.any? %>
+                          <%= user_training.user.departments.first.name %>
+                          <% if user_training.user.departments.count > 1 %>
+                            <span class="text-xs text-gray-400">(+<%= user_training.user.departments.count - 1 %>)</span>
+                          <% end %>
+                        <% else %>
+                          <span class="text-xs text-gray-400">Sem setor</span>
+                        <% end %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <%= user_training.training_version.version_number %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <% status_class = case user_training.status 
+                                        when "completed" then "bg-green-100 text-green-800" 
+                                        when "in_progress" then "bg-blue-100 text-blue-800" 
+                                        when "expired" then "bg-red-100 text-red-800" 
+                                        else "bg-yellow-100 text-yellow-800" 
+                                        end %>
+                        <span class="<%= status_class %> px-2 py-1 text-xs rounded-full">
+                          <%= t("user_training_version.status.#{user_training.status}") %>
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <% if user_training.required? %>
+                          <span class="bg-red-100 text-red-800 text-xs px-2.5 py-0.5 rounded-full">Sim</span>
+                        <% else %>
+                          <span class="bg-gray-100 text-gray-800 text-xs px-2.5 py-0.5 rounded-full">Não</span>
+                        <% end %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <%= link_to user_training_version_path(user_training), class: "text-indigo-600 hover:text-indigo-900 inline-flex items-center" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Detalhes
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="bg-gray-50 rounded-lg p-4 text-gray-700 mb-6">
+              Nenhum usuário foi atribuído especificamente a este treinamento.
+            </div>
+          <% end %>
+          
+          <!-- Formulário para atribuir a usuários específicos -->
+          <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Atribuir a usuários específicos</h3>
+            <%= form_with(url: assign_to_user_path, method: :post, class: "space-y-4") do |form| %>
+              <%= form.hidden_field :training_id, value: @selected_training.id %>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <%= form.label :user_id, "Usuário", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= form.collection_select :user_id, User.all.order(:name), :id, :name, 
+                      { prompt: "Selecione um usuário" }, 
+                      class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                </div>
+
+                <div class="flex items-start pt-7">
+                  <%= form.check_box :required, 
+                      id: "user_required_checkbox", 
+                      class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1" %>
+                  <div class="ml-3">
+                    <%= form.label :required, "Obrigatório", 
+                        for: "user_required_checkbox", 
+                        class: "text-sm font-medium text-gray-700" %>
+                    <p class="text-xs text-gray-500">Se marcado, este treinamento será obrigatório para o usuário</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="pt-4">
+                <%= form.submit "Atribuir a Usuário", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-gray-50" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% else %>
+    <!-- Modo padrão: interface de atribuição geral -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <h1 class="text-xl font-semibold text-gray-800">Atribuir Treinamentos</h1>
+      </div>
+      
+      <div class="p-6">
+        <!-- Abas para seleção de métodos -->
+        <div class="mb-6 border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button data-tab="user-tab" class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 border-indigo-500 font-medium text-indigo-600">
+              Por Colaborador
+            </button>
+            <button data-tab="department-tab" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+              Por Setor
+            </button>
+          </nav>
+        </div>
+        
+        <!-- Conteúdo da aba Por Colaborador -->
+        <div id="user-tab" class="tab-content">
+          <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Selecione um colaborador</h2>
+            
+            <%= form_with(url: assign_trainings_path, method: :get, class: "") do |form| %>
+              <div class="grow">
+                <%= form.label :user_id, "Colaborador", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= form.collection_select :user_id, @users, :id, :name, 
+                                        { prompt: "Selecione um colaborador", selected: params[:user_id] },
+                                        class: "mt-1 mb-4 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+              </div>
+              <%= form.submit "Buscar", class: "md:flex-none inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-gray-50" %>
+            <% end %>
+          </div>
+          
+          <% if @selected_user %>
+            <!-- Exibição de treinamentos do usuário -->
+            <div class="mb-8">
+              <div class="flex items-center justify-between mb-4 bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-800">Treinamentos de <%= @selected_user.name %></h3>
+                <div>
+                  <% if @selected_user.departments.any? %>
+                    <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1.5 rounded-full font-medium">
+                      <%= @selected_user.departments.first.name %>
+                      <% if @selected_user.departments.count > 1 %>
+                        <span class="text-xs text-blue-600">(+<%= @selected_user.departments.count - 1 %> mais)</span>
+                      <% end %>
+                    </span>
+                  <% else %>
+                    <span class="bg-gray-100 text-gray-800 text-xs px-2.5 py-1.5 rounded-full font-medium">Sem setor</span>
+                  <% end %>
+                </div>
+              </div>
+              
+              <% if @user_trainings&.any? %>
+                <div class="bg-white overflow-hidden border border-gray-200 rounded-lg">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treinamento</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atribuído em</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Obrigatório</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <% @user_trainings.each do |utv| %>
+                        <tr class="hover:bg-gray-50">
+                          <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <%= link_to assign_trainings_path(training_id: utv.training_version.training.id), class: "text-indigo-600 hover:text-indigo-900 hover:underline font-medium" do %>
+                              <%= utv.training_version.training.title %>
+                            <% end %>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <%= utv.training_version.version_number %>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <% status_class = case utv.status 
+                                            when "completed" then "bg-green-100 text-green-800" 
+                                            when "in_progress" then "bg-blue-100 text-blue-800" 
+                                            when "expired" then "bg-red-100 text-red-800" 
+                                            else "bg-yellow-100 text-yellow-800" 
+                                            end %>
+                            <span class="<%= status_class %> px-2 py-1 text-xs rounded-full">
+                              <%= t("user_training_version.status.#{utv.status}") %>
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <%= l(utv.assigned_at, format: :short) if utv.assigned_at %>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <% if utv.required? %>
+                              <span class="bg-red-100 text-red-800 text-xs px-2.5 py-0.5 rounded-full">Sim</span>
+                            <% else %>
+                              <span class="bg-gray-100 text-gray-800 text-xs px-2.5 py-0.5 rounded-full">Não</span>
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              <% else %>
+                <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+                  Este colaborador não possui treinamentos atribuídos.
+                </div>
+              <% end %>
+            </div>
+                  
+            <!-- Formulário de atribuição de treinamento -->
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <h3 class="text-lg font-medium text-gray-800 mb-4">Atribuir novo treinamento</h3>
+              
+              <%= form_with(url: assign_to_user_path, method: :post, class: "space-y-4") do |form| %>
+                <%= form.hidden_field :user_id, value: @selected_user.id %>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <%= form.label :training_id, "Treinamento", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                    <%= form.collection_select :training_id, @trainings, :id, :title, 
+                                            { prompt: "Selecione um treinamento" },
+                                            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                  </div>
+
+                  <div class="flex items-start pt-7 my-4">
+                    <%= form.check_box :required, 
+                        id: "user_required_checkbox", 
+                        class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1" %>
+                    <div class="ml-3">
+                      <%= form.label :required, "Obrigatório", 
+                          for: "user_required_checkbox", 
+                          class: "text-sm font-medium text-gray-700" %>
+                      <p class="text-xs text-gray-500">Se marcado, este treinamento será obrigatório para o colaborador</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="pt-4">
+                  <%= form.submit "Atribuir Treinamento", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-gray-50" %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Conteúdo da aba Por Setor -->
+        <div id="department-tab" class="tab-content hidden">
+          <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+            <h2 class="text-lg font-medium text-gray-800 mb-4">Selecione um setor</h2>
+            
+            <%= form_with(url: assign_trainings_path, method: :get, class: "flex flex-col md:flex-row md:items-end gap-4") do |form| %>
+              <div class="grow">
+                <%= form.label :department_id, "Setor", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= form.collection_select :department_id, @departments, :id, :name, 
+                                        { prompt: "Selecione um setor", selected: params[:department_id] },
+                                        class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+              </div>
+              <%= form.submit "Buscar", class: "md:flex-none inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-gray-50" %>
+            <% end %>
+          </div>
+          
+          <% if @selected_department %>
+            <!-- Colaboradores do setor -->
+            <div class="mb-8">
+              <div class="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-800">Colaboradores do setor <%= @selected_department.name %></h3>
+                
+                <% if @department_users&.any? %>
+                  <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1.5 rounded-full font-medium">
+                    Total: <%= @department_users.count %>
+                  </span>
+                <% end %>
+              </div>
+              
+              <% if @department_users&.any? %>
+                <div class="bg-white overflow-hidden border border-gray-200 rounded-lg mb-6">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <% @department_users.each do |user| %>
+                        <tr class="hover:bg-gray-50">
+                          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <%= user.name %>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <%= user.email_address %>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <%= link_to assign_trainings_path(user_id: user.id), class: "text-indigo-600 hover:text-indigo-900 inline-flex items-center" do %>
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                              Ver treinamentos
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              <% else %>
+                <div class="bg-gray-50 p-4 rounded-lg text-gray-700 mb-6">
+                  Este setor não possui colaboradores.
+                </div>
+              <% end %>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <h3 class="text-lg font-medium text-gray-800 mb-4">Atribuir treinamento a todos do setor</h3>
+              
+              <%= form_with(url: assign_to_department_path, method: :post, class: "space-y-4") do |form| %>
+                <%= form.hidden_field :department_id, value: @selected_department.id %>
+                
+                <div class="grid grid-cols-1 gap-4">
+                  <div>
+                    <%= form.label :training_id, "Treinamento", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                    <%= form.collection_select :training_id, @trainings, :id, :title,
+                                            { prompt: "Selecione um treinamento" },
+                                            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                  </div>
+
+                  <div class="flex items-start mt-3">
+                    <%= form.check_box :required, 
+                        id: "department_required_checkbox",
+                        class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1" %>
+                    <div class="ml-3">
+                      <%= form.label :required, "Obrigatório", 
+                          for: "department_required_checkbox",
+                          class: "text-sm font-medium text-gray-700" %>
+                      <p class="text-xs text-gray-500">Se marcado, este treinamento será obrigatório para todos do setor</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start mt-3">
+                    <%= form.check_box :assign_to_users, 
+                        id: "assign_to_users_checkbox",
+                        class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1" %>
+                    <div class="ml-3">
+                      <%= form.label :assign_to_users, "Atribuir a todos os colaboradores do setor", 
+                          for: "assign_to_users_checkbox",
+                          class: "text-sm font-medium text-gray-700" %>
+                      <p class="text-xs text-gray-500">Se marcado, o treinamento será atribuído a todos os colaboradores deste setor</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="rounded-md bg-yellow-50 p-4 mt-4">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-yellow-800">Atenção</h3>
+                      <div class="mt-2 text-sm text-yellow-700">
+                        <p>Esta ação atribuirá o treinamento selecionado a todos os colaboradores deste setor que ainda não o possuem.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="pt-4">
+                  <%= form.submit "Atribuir a Todos do Setor", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-gray-50" %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- JavaScript para controlar as abas -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Função para confirmar alteração de obrigatoriedade
+    window.toggleRequired = function(event) {
+      // Evitar que o formulário seja enviado imediatamente ao clicar no label
+      event.stopPropagation();
+      
+      // Confirmar a alteração antes de enviar
+      if (confirm('Deseja alterar o status de obrigatório para este treinamento?')) {
+        const formId = event.target.dataset.formId;
+        document.getElementById(formId).submit();
+      } else {
+        // Se o usuário cancelar, reverter a alteração do checkbox
+        event.target.checked = !event.target.checked;
+      }
+    };
+    
+    // Só executar o código de abas se estiver no modo de atribuição geral
+    <% unless @selected_training %>
+      // Configurar as abas
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      // Inicialmente, verificar qual aba deve estar ativa com base nos parâmetros da URL
+      const hasUserParam = <%= params[:user_id].present? ? 'true' : 'false' %>;
+      const hasDepartmentParam = <%= params[:department_id].present? ? 'true' : 'false' %>;
+      
+      // Se tem um parâmetro de setor, ativar a aba de setor
+      if (hasDepartmentParam && !hasUserParam) {
+        document.querySelector('[data-tab="department-tab"]')?.click();
+      }
+      
+      // Função para alternar entre as abas
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          
+          // Desativar todas as abas
+          tabButtons.forEach(btn => {
+            btn.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+            btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          });
+          
+          // Esconder todos os conteúdos
+          tabContents.forEach(content => {
+            content.classList.add('hidden');
+          });
+          
+          // Ativar a aba clicada
+          this.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+          this.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+          
+          // Mostrar o conteúdo correspondente
+          document.getElementById(tabId)?.classList.remove('hidden');
+        });
+      });
+    <% end %>
+  });
+</script>

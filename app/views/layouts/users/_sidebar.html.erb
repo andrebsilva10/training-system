@@ -1,4 +1,4 @@
-<aside data-sidebar-target="sidebar" class="fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full pt-0 pt-16 transition-transform sm:translate-x-0">
+<aside data-sidebar-target="sidebar" class="fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full pt-16 transition-transform sm:translate-x-0">
   <div class="h-full overflow-y-auto border-r border-gray-200 bg-white px-3 py-4">
     <ul class="text-gray-700 space-y-2 font-sm">
       <li>
@@ -7,6 +7,55 @@
           <span class="ms-3">Home</span>
         <% end %>
       </li>
+      
+      <li>
+        <%= active_link_to my_trainings_path, class: "flex items-center p-2 rounded-lg hover:bg-blue-100 group" do %>
+          <%= icon(:book_open) %>
+          <span class="ms-3">Meus Treinamentos</span>
+        <% end %>
+      </li>
+      
+      <li>
+        <%= active_link_to users_edit_profile_path, class: "flex items-center p-2 rounded-lg hover:bg-blue-100 group" do %>
+          <%= icon(:user) %>
+          <span class="ms-3">Meu Perfil</span>
+        <% end %>
+      </li>
+      
+      <% if Current.user.admin? %>
+        <!-- Admin Section -->
+        <li class="pt-4 mt-2 border-t border-gray-200">
+          <span class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Administração</span>
+        </li>
+
+        <li>
+          <%= active_link_to assign_trainings_path, class: "flex items-center p-2 rounded-lg hover:bg-blue-100 group" do %>
+            <%= icon(:clipboard_document_check) %>
+            <span class="ms-3">Atribuir Treinamentos</span>
+          <% end %>
+        </li>
+
+        <li>
+          <%= active_link_to departments_path, class: "flex items-center p-2 rounded-lg hover:bg-blue-100 group" do %>
+            <%= icon(:building_office) %>
+            <span class="ms-3">Setores Cadastrados</span>
+          <% end %>
+        </li>
+        
+        <li>
+          <%= active_link_to trainings_path, class: "flex items-center p-2 rounded-lg hover:bg-blue-100 group" do %>
+            <%= icon(:academic_cap) %>
+            <span class="ms-3">Treinamentos Cadastrados</span>
+          <% end %>
+        </li>
+        
+        <li>
+          <%= active_link_to users_list_path, class: "flex items-center p-2 rounded-lg hover:bg-blue-100 group" do %>
+            <%= icon(:users) %>
+            <span class="ms-3">Usuários</span>
+          <% end %>
+        </li>
+      <% end %>
     </ul>
   </div>
 </aside>

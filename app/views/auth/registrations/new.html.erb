@@ -4,12 +4,52 @@
 <%= form_with model: @user, url: registration_path do |form| %>
   <%= form.tw_text_field :name %>
   <%= form.tw_email_field :email_address %>
-  <%= form.tw_password_field :password %>
-  <%= form.tw_password_field :password_confirmation %>
+
+  <div class="mb-4">
+    <div class="flex items-center mb-2">
+      <%= check_box_tag :send_confirmation_email, "1", true, 
+          class: "h-4 w-4 text-indigo-600 rounded", 
+          onchange: "document.getElementById('password_fields').classList.toggle('hidden')" %>
+      <label for="send_confirmation_email" class="ml-2 text-sm text-gray-700">
+        Enviar e-mail de confirmação para o usuário
+      </label>
+    </div>
+    <p class="text-xs text-gray-500">
+      Se marcado, um e-mail será enviado para o usuário confirmar a conta e definir sua senha.
+      Caso contrário, você deverá definir uma senha inicial.
+    </p>
+  </div>
+
+  <div id="password_fields" class="hidden">
+    <%= form.tw_password_field :password %>
+    <%= form.tw_password_field :password_confirmation %>
+  </div>
 
   <%= form.tw_submit t("sessions.actions.register") %>
 <% end %>
 
 <div class="mt-6 text-center">
-  <%= link_to t("sessions.actions.already_have_account"), new_session_path %>
+  <%= link_to t("sessions.actions.back_to_users"), users_list_path %>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('send_confirmation_email');
+    const passwordFields = document.getElementById('password_fields');
+    
+    // Inicializar visibilidade com base no estado do checkbox
+    passwordFields.classList.toggle('hidden', checkbox.checked);
+    
+    // Adicionar validação para garantir que a senha seja informada quando necessário
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+      const sendEmail = checkbox.checked;
+      const password = document.querySelector('input[name="user[password]"]').value;
+      
+      if (!sendEmail && !password) {
+        event.preventDefault();
+        alert('Por favor, informe uma senha para o usuário.');
+      }
+    });
+  });
+</script>

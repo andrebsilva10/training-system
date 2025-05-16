@@ -7,7 +7,7 @@ pt-BR:
       forgot_password: Esqueceu a senha?
       update_password: Atualizar senha
       account_confirmation: Confirmar conta
-      register: Registrar-se
+      register: Cadastrar usuário
     actions:
       sign_in: Entrar
       sign_out: Sair
@@ -17,7 +17,7 @@ pt-BR:
       reset_password: Redefinir senha
       confirm_account: Confirmar conta
       resend_confirmation_conde: Reenviar código de confirmação
-      register: Registrar-se
+      register: Cadastrar usuário
       already_have_account: Já tem uma conta?
     flash:
       error: E-mail e/ou senha incorretos!

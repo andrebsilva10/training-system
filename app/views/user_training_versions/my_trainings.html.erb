@@ -1,0 +1,256 @@
+<% provide :page_title, "Meus Treinamentos" %>
+
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Meus Treinamentos</h1>
+  </div>
+
+  <% if @pending_trainings.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm mr-2">Pendentes</span>
+        Treinamentos que você precisa iniciar
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treinamento</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atribuído em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @pending_trainings.each do |utv| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  <%= link_to utv.training_version.training.title, user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <% if utv.required? %>
+                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Obrigatório</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= utv.training_version.version_number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.assigned_at, format: :short) if utv.assigned_at %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <%= button_to "Iniciar Agora", start_user_training_version_path(utv), method: :post, class: "ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @in_progress_trainings.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm mr-2">Em Andamento</span>
+        Treinamentos que você está realizando
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treinamento</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Iniciado em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @in_progress_trainings.each do |utv| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  <%= link_to utv.training_version.training.title, user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <% if utv.required? %>
+                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Obrigatório</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= utv.training_version.version_number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.started_at, format: :short) if utv.started_at %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Continuar", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <%= button_to "Marcar Concluído", complete_user_training_version_path(utv), method: :post, class: "ml-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm bg-green-600 hover:bg-green-700" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+  
+  <% if @expiring_soon_trainings.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm mr-2">Expirando em Breve</span>
+        Treinamentos que precisam ser renovados
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treinamento</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concluído em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expira em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @expiring_soon_trainings.each do |utv| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  <%= link_to utv.training_version.training.title, user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <% if utv.required? %>
+                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Obrigatório</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= utv.training_version.version_number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.completed_at, format: :short) if utv.completed_at %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.due_date, format: :short) if utv.due_date %>
+                  <span class="ml-2 text-orange-700 text-xs">
+                    <%= distance_of_time_in_words(Date.today, utv.due_date) %> restantes
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @completed_trainings.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm mr-2">Concluídos</span>
+        Treinamentos que você já completou
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treinamento</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concluído em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Válido até</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @completed_trainings.each do |utv| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  <%= link_to utv.training_version.training.title, user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <% if utv.required? %>
+                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Obrigatório</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= utv.training_version.version_number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.completed_at, format: :short) if utv.completed_at %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <% if utv.due_date %>
+                    <%= l(utv.due_date, format: :short) %>
+                  <% else %>
+                    <span class="text-gray-400">Sem prazo</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @expired_trainings.any? %>
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm mr-2">Expirados</span>
+        Treinamentos que precisam ser renovados
+      </h2>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Treinamento</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versão</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concluído em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expirou em</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @expired_trainings.each do |utv| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                  <%= link_to utv.training_version.training.title, user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                  <% if utv.required? %>
+                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Obrigatório</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= utv.training_version.version_number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.completed_at, format: :short) if utv.completed_at %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <%= l(utv.due_date, format: :short) if utv.due_date %>
+                  <span class="ml-2 text-red-700 text-xs">
+                    Expirado há <%= distance_of_time_in_words(utv.due_date, Date.today) %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+
+  <% if !@pending_trainings.any? && !@in_progress_trainings.any? && !@completed_trainings.any? && !@expired_trainings.any? && !@expiring_soon_trainings.any? %>
+    <div class="text-center py-10">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Sem treinamentos</h3>
+      <p class="mt-1 text-sm text-gray-500">Você não possui treinamentos atribuídos no momento.</p>
+    </div>
+  <% end %>
+</div>

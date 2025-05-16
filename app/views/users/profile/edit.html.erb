@@ -5,7 +5,10 @@
 
    <%= render "users/profile/form_avatar" %>
 
-   <%= form_with model: @user, url: users_update_profile_path, local: true do |form| %>
+   <%= form_with model: @user, 
+              url: @user.id == Current.user.id ? users_update_profile_path : users_user_path(@user), 
+              method: :patch, 
+              local: true do |form| %>
       <%= form.tw_text_field :name %>
       <%= form.tw_email_field :email_address %>
       <%= form.tw_password_field :current_password %>

@@ -1,0 +1,18 @@
+<div id="<%= dom_id training %>" class="bg-white rounded-lg shadow-sm p-6">
+  <div class="grid grid-cols-1 gap-4">
+    <div>
+      <h3 class="text-sm font-medium text-gray-500">Título</h3>
+      <p class="mt-1 text-sm font-medium text-gray-900"><%= training.title %></p>
+    </div>
+    
+    <div>
+      <h3 class="text-sm font-medium text-gray-500">Descrição</h3>
+      <p class="mt-1 text-sm text-gray-700"><%= training.description.presence || "Não informada" %></p>
+    </div>
+    
+    <div>
+      <h3 class="text-sm font-medium text-gray-500">Duração</h3>
+      <p class="mt-1 text-sm text-gray-700"><%= training.duration.present? ? "#{training.duration} minutos" : "Não informada" %></p>
+    </div>
+  </div>
+</div>

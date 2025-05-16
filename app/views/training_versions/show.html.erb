@@ -1,0 +1,238 @@
+<% provide :page_title, "Versão #{@training_version.version_number} - #{@training_version.training.title}" %>
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <% if notice.present? %>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+      <p><%= notice %></p>
+    </div>
+  <% end %>
+
+  <!-- Cabeçalho com título e botões -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      <%= @training_version.training.title %> - Versão <%= @training_version.version_number %>
+    </h1>
+    
+    <div class="flex space-x-2">
+      <% if Current.user.admin? %>
+        <%= link_to "Editar", edit_training_training_version_path(@training, @training_version), 
+                    class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" %>
+      <% end %>
+      <%= link_to "Voltar ao Treinamento", training_path(@training), 
+                  class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium bg-indigo-600 hover:bg-indigo-700" %>
+    </div>
+  </div>
+
+  <!-- Card de informações da versão -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-800">Informações da Versão</h2>
+    </div>
+    
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Status</h3>
+          <p class="mt-1 text-sm text-gray-900">
+            <span class="<%= @training_version.active? ? 'bg-green-100 text-green-800' : @training_version.inactive? ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800' %> px-2 py-1 text-xs font-medium rounded-full">
+              <%= t("training_version.status.#{@training_version.status}") %>
+            </span>
+          </p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Data de Publicação</h3>
+          <p class="mt-1 text-sm text-gray-900"><%= l(@training_version.release_date) %></p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Período de Validade</h3>
+          <p class="mt-1 text-sm text-gray-900"><%= @training_version.valid_for %> dias</p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Criado em</h3>
+          <p class="mt-1 text-sm text-gray-900"><%= l(@training_version.created_at) %></p>
+        </div>
+      </div>
+      
+      <!-- Documentos anexados (se houver) -->
+      <% if @training_version.documents.attached? %>
+        <div class="mt-6">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Documentos Anexados</h3>
+          <ul class="divide-y divide-gray-200">
+            <% @training_version.documents.each do |document| %>
+              <li class="py-3 flex justify-between items-center">
+                <div class="flex items-center">
+                  <svg class="h-5 w-5 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span class="text-sm text-gray-900"><%= document.filename %></span>
+                </div>
+                <%= link_to "Download", rails_blob_path(document, disposition: "attachment"), class: "text-indigo-600 hover:text-indigo-900 text-sm font-medium" %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Conteúdo do treinamento -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-800">Conteúdo do Treinamento</h2>
+    </div>
+    
+    <div class="p-6 prose max-w-none">
+      <%= @training_version.content %>
+    </div>
+  </div>
+
+  <!-- Seção de usuários (se for administrador) -->
+  <% if Current.user.admin? %>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Usuários Atribuídos</h2>
+      </div>
+      
+      <div class="p-6">
+        <div class="rounded-md bg-blue-50 p-4 mb-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.75.75 0 00.736-.686A1.5 1.5 0 019.5 9H9z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3 flex-1 md:flex md:justify-between">
+              <p class="text-sm text-blue-700">
+                As atribuições são gerenciadas no nível do treinamento, não da versão. Para gerenciar usuários, use a página de <strong>Atribuir Treinamentos</strong>.
+              </p>
+              <p class="mt-3 text-sm md:ml-6 md:mt-0">
+                <%= link_to "Gerenciar Atribuições", assign_trainings_path(training_id: @training.id), class: "whitespace-nowrap font-medium text-blue-700 hover:text-blue-600" %>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Usuários já atribuídos -->
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">Usuários que Concluíram</h3>
+            <% if @users_completed&.any? %>
+              <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concluído em</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Válido até</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <% @users_completed.each do |utv| %>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900"><%= utv.user.name %></div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          <%= l(utv.completed_at) %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          <%= l(utv.due_date) if utv.due_date.present? %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <p class="text-sm text-gray-500">Nenhum usuário concluiu este treinamento.</p>
+            <% end %>
+          </div>
+          
+          <div>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">Usuários em Andamento</h3>
+            <!-- Tabela similar para usuários em andamento -->
+            <% if @users_in_progress&.any? %>
+              <!-- Conteúdo similar à tabela de concluídos -->
+              <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Iniciado em</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <% @users_in_progress.each do |utv| %>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900"><%= utv.user.name %></div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          <%= l(utv.started_at) if utv.started_at.present? %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <p class="text-sm text-gray-500">Nenhum usuário está fazendo este treinamento no momento.</p>
+            <% end %>
+          </div>
+          
+          <div>
+            <h3 class="text-lg font-medium text-gray-700 mb-2">Usuários Pendentes</h3>
+            <!-- Tabela similar para usuários pendentes -->
+            <% if @users_pending&.any? %>
+              <div class="overflow-x-auto">
+                <table class="w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atribuído em</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <% @users_pending.each do |utv| %>
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900"><%= utv.user.name %></div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                          <%= l(utv.assigned_at) if utv.assigned_at.present? %>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <%= link_to "Detalhes", user_training_version_path(utv), class: "text-indigo-600 hover:text-indigo-900" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <p class="text-sm text-gray-500">Nenhum usuário está pendente neste treinamento.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -40,9 +40,4 @@ class UserLoginTest < ApplicationSystemTestCase
     assert_current_path new_password_path
   end
 
-  test "user can navigate to new registration" do
-    click_on I18n.t("sessions.actions.register")
-
-    assert_current_path new_registration_path
-  end
 end

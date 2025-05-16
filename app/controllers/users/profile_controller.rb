@@ -40,7 +40,11 @@ class Users::ProfileController < Users::BaseController
   private
 
   def set_user
-    @user = User.find(Current.user.id) # new object of user
+    if params[:user_id] && Current.user.admin?
+      @user = User.find(params[:user_id])
+    else
+      @user = User.find(Current.user.id)
+    end
   end
 
   def user_params

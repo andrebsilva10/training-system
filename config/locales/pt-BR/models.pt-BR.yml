@@ -3,8 +3,15 @@ pt-BR:
     errors:
       messages:
         wrong_current_password: Senha atual incorreta
+
     models:
       user: 'Usuário'
+      department: "Setor"
+      training: "Treinamento"
+      training_version: "Versão do Treinamento"
+      user_training_version: "Treinamento do Usuário"
+      department_training: "Treinamento do Setor"
+
     attributes:
       defaults: &defaults
         created_at: 'Criado em'
@@ -18,3 +25,41 @@ pt-BR:
         reset_password_token: 'Chave de redefinição de senha'
         <<: *defaults
 
+      department:
+        name: "Nome"
+        description: "Descrição"
+
+      training:
+        title: "Título"
+        description: "Descrição"
+        required: "Obrigatório"
+        duration: "Duração (minutos)"
+
+      training_version:
+        version_number: "Número da Versão"
+        valid_for: "Validade (dias)"
+        status: "Status"
+        release_date: "Data de Lançamento"
+        content: "Conteúdo"
+        documents: "Documentos"
+
+      user_training_version:
+        status: "Status"
+        assigned_at: "Atribuído em"
+        started_at: "Iniciado em"
+        completed_at: "Concluído em"
+        due_date: "Válido até"
+        notes: "Observações"
+
+  training_version:
+    status:
+      active: "Ativo"
+      inactive: "Inativo"
+      expired: "Expirado"
+
+  user_training_version:
+    status:
+      pending: "Pendente"
+      in_progress: "Em Andamento"
+      completed: "Concluído"
+      expired: "Expirado"

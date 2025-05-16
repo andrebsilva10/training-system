@@ -1,0 +1,93 @@
+<%= form_with(model: [@training, @training_version], class: "contents") do |form| %>
+  <% if training_version.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(training_version.errors.count, "erro") %> impediram o salvamento desta versão:</h2>
+
+      <ul class="list-disc ml-6">
+        <% training_version.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :training_id, "Treinamento", class: "font-medium" %>
+    <div class="mt-2 py-2 px-3 bg-gray-100 border border-gray-300 rounded-md">
+      <%= @training.title %>
+      <%= form.hidden_field :training_id, value: @training.id %>
+    </div>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :version_number, "Número da Versão", class: "font-medium" %>
+    <%= form.number_field :version_number, 
+                        value: training_version.persisted? ? training_version.version_number : @next_version_number, 
+                        readonly: true,
+                        class: "bg-gray-100 block shadow-sm rounded-md border px-3 py-2 mt-2 w-full border-gray-400" %>
+    <div class="text-sm text-gray-500 mt-1">Número gerado automaticamente sequencialmente</div>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :valid_for, "Período de Validade (dias)", class: "font-medium" %>
+    <%= form.number_field :valid_for, 
+                         min: 1,
+                         placeholder: "Ex: 365 para um ano", 
+                         class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", 
+                                 {"border-gray-400 focus:outline-blue-600": training_version.errors[:valid_for].none?, 
+                                  "border-red-400 focus:outline-red-600": training_version.errors[:valid_for].any?}] %>
+    <div class="text-sm text-gray-500 mt-1">Número de dias que este treinamento permanecerá válido após sua conclusão</div>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :status, "Status", class: "font-medium" %>
+    <%= form.select :status, 
+                   TrainingVersion.statuses.keys.map { |status| [t("training_version.status.#{status}"), status] }, 
+                   {}, 
+                   class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", 
+                          {"border-gray-400 focus:outline-blue-600": training_version.errors[:status].none?, 
+                           "border-red-400 focus:outline-red-600": training_version.errors[:status].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :release_date, "Data de Publicação", class: "font-medium" %>
+    <%= form.date_field :release_date, 
+                       class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", 
+                              {"border-gray-400 focus:outline-blue-600": training_version.errors[:release_date].none?, 
+                               "border-red-400 focus:outline-red-600": training_version.errors[:release_date].any?}] %>
+    <div class="text-sm text-gray-500 mt-1">Data em que esta versão foi disponibilizada</div>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :content, "Conteúdo", class: "font-medium" %>
+    <%= form.rich_text_area :content, 
+                           class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", 
+                                  {"border-gray-400 focus:outline-blue-600": training_version.errors[:content].none?, 
+                                   "border-red-400 focus:outline-red-600": training_version.errors[:content].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :documents, "Documentos", class: "font-medium" %>
+    <%= form.file_field :documents, 
+                       multiple: true, 
+                       class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", 
+                              {"border-gray-400 focus:outline-blue-600": training_version.errors[:documents].none?, 
+                               "border-red-400 focus:outline-red-600": training_version.errors[:documents].any?}] %>
+  </div>
+
+  <% if @training.training_versions.any? %>
+    <div class="my-5">
+      <div class="flex items-start">
+        <%= check_box_tag :deactivate_previous, "1", true, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded mt-1" %>
+        <div class="ml-3">
+          <label for="deactivate_previous" class="font-medium">Desativar versões anteriores?</label>
+          <p class="text-sm text-gray-500">Se marcado, todas as versões anteriores serão marcadas como inativas</p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="inline">
+    <%= form.submit "Salvar Versão", class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

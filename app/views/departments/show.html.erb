@@ -1,0 +1,55 @@
+<% provide :page_title, @department.name %>
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <% if notice.present? %>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+      <p><%= notice %></p>
+    </div>
+  <% end %>
+
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800"><%= @department.name %></h1>
+    
+    <div class="flex space-x-2">
+      <%= link_to edit_department_path(@department), class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+        Editar
+      <% end %>
+      
+      <%= link_to departments_path, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Voltar
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-800">Informações do Setor</h2>
+    </div>
+    
+    <div class="p-6">
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Nome</h3>
+          <p class="mt-1 text-sm text-gray-900"><%= @department.name %></p>
+        </div>
+        
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Descrição</h3>
+          <p class="mt-1 text-sm text-gray-900"><%= @department.description.present? ? @department.description : "Não informada" %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="flex justify-end mt-6">
+    <%= button_to "Excluir Setor", @department, method: :delete, 
+        class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 text-white", 
+        data: { turbo_confirm: "Tem certeza que deseja excluir este setor?" } %>
+  </div>
+</div>

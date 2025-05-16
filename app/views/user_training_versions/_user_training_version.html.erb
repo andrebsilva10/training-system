@@ -1,0 +1,92 @@
+<!-- Esta partial é usada como componente em outras views -->
+<div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+  <div class="p-6 bg-white border-b border-gray-200">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Treinamento -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Treinamento</h3>
+        <p class="mt-1 text-lg font-medium">
+          <%= link_to user_training_version.training_version.training.title, 
+                      training_path(user_training_version.training_version.training), 
+                      class: "text-indigo-600 hover:text-indigo-900" %>
+        </p>
+      </div>
+      
+      <!-- Versão -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Versão</h3>
+        <p class="mt-1 text-lg">
+          <%= user_training_version.training_version.version_number %>
+        </p>
+      </div>
+      
+      <!-- Status -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Status</h3>
+        <p class="mt-1">
+          <% status_class = case user_training_version.status 
+                          when "completed" then "bg-green-100 text-green-800" 
+                          when "in_progress" then "bg-blue-100 text-blue-800" 
+                          when "expired" then "bg-red-100 text-red-800" 
+                          else "bg-yellow-100 text-yellow-800" 
+                          end %>
+          <span class="<%= status_class %> px-2 py-1 rounded text-sm">
+            <%= t("user_training_version.status.#{user_training_version.status}") %>
+          </span>
+        </p>
+      </div>
+      
+      <!-- Obrigatório -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Obrigatório</h3>
+        <p class="mt-1">
+          <% if user_training_version.required? %>
+            <span class="bg-red-100 text-red-800 text-sm px-2 py-1 rounded">Sim</span>
+          <% else %>
+            <span class="bg-gray-100 text-gray-800 text-sm px-2 py-1 rounded">Não</span>
+          <% end %>
+        </p>
+      </div>
+      
+      <!-- Datas relevantes -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Atribuído em</h3>
+        <p class="mt-1 text-gray-700">
+          <%= l(user_training_version.assigned_at, format: :long) if user_training_version.assigned_at %>
+        </p>
+      </div>
+      
+      <% if user_training_version.started_at.present? %>
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Iniciado em</h3>
+          <p class="mt-1 text-gray-700">
+            <%= l(user_training_version.started_at, format: :long) %>
+          </p>
+        </div>
+      <% end %>
+      
+      <% if user_training_version.completed_at.present? %>
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Concluído em</h3>
+          <p class="mt-1 text-gray-700">
+            <%= l(user_training_version.completed_at, format: :long) %>
+          </p>
+        </div>
+      <% end %>
+      
+      <% if user_training_version.due_date.present? %>
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Válido até</h3>
+          <p class="mt-1 text-gray-700">
+            <%= l(user_training_version.due_date) %>
+            <% if user_training_version.due_date < Date.current %>
+              <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full ml-2">
+                Vencido
+              </span>
+            <% end %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
