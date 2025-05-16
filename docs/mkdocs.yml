@@ -1,0 +1,48 @@
+site_name: Training System
+repo_url: https://gitlab.coop.sicredi.in/central_prsp/coop-0703/automations
+repo_name: training_system
+edit_uri: tree/main/docs
+
+theme:
+  name: material
+  language: pt-BR
+  logo: assets/sicredi.png
+  favicon: assets/sicredi.png
+  features:
+    - search.suggest
+  palette:
+    - scheme: default
+      primary: #40E0D0
+      toggle:
+        icon: material/weather-night
+        name: Modo noturno
+    - scheme: slate
+      primary: #40E0D0
+      toggle:
+        icon: material/weather-sunny
+        name: Modo claro
+
+markdown_extensions: 
+  - attr_list
+  - admonition
+  - pymdownx.tasklist
+  - pymdownx.emoji
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.highlight
+  - pymdownx.details
+  - pymdownx.superfences
+  - toc:
+      title: Tópicos
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+  # - mkdocstrings:
+  #     handlers:
+  #       python:
+  #         options:
+  #           filters: []
+  #         paths: [testemkdocs]
